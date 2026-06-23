@@ -410,15 +410,13 @@ async function fetchLandbook(pnu) {
 
 // ── Claude API 호출 ──
 async function callClaude(prompt) {
-  const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AQ.Ab8RN6JTNedJy8IbZ8B7rts97mWDtuifWfclCdhl9BqBsG6otw', {
+  const res = await fetch('/proxy/gemini', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }]
-    })
+    body: JSON.stringify({ prompt })
   });
   const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return data?.text || '';
 }
 
 // ── Claude가 구조화 JSON 생성 ──

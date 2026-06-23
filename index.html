@@ -384,7 +384,20 @@ async function fetchJuso(addr) {
     const data = await res.json();
     const result = data?.results?.juso?.[0];
     if (!result) return null;
-    return { siNm: result.siNm, sggNm: result.sggNm, emdNm: result.emdNm, roadAddr: result.roadAddr, jibunAddr: result.jibunAddr, x: result.entX, y: result.entY };
+    return { siNm: result.siNm, sggNm: result.sggNm, emdNm: result.emdNm, roadAddr: result.roadAddr, jibunAddr: result.jibunAddr };
+  } catch(e) { return null; }
+}
+
+async function fetchGeocode(jibunAddr) {
+  const key = HARDCODED_VWORLD_KEY;
+  if (!key || !jibunAddr) return null;
+  try {
+    const url = `${PROXY}/proxy/geocode?addr=${encodeURIComponent(jibunAddr)}&key=${key}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const pt = data?.response?.result?.point;
+    if (!pt) return null;
+    return { x: pt.x, y: pt.y };
   } catch(e) { return null; }
 }
 
@@ -503,11 +516,19 @@ async function run() {
   const juso = await fetchJuso(addr);
   if (juso) {
     apiData = { ...apiData, ...juso };
-    stepOk('s1', '✓ 행안부 주소 API → 좌표·법정동코드 추출 완료');
+    stepOk('s1', '✓ 행안부 주소 API → 지번주소 추출 완료');
   } else {
     stepSkip('s1', '↷ 주소 API 응답 없음 → AI 추론으로 전환');
   }
-  await sleep(600);
+  await sleep(400);
+
+  // Step 1.5: 지번주소 → 좌표 변환
+  if (apiData?.jibunAddr) {
+    const geo = await fetchGeocode(apiData.jibunAddr);
+    if (geo) {
+      apiData = { ...apiData, ...geo };
+    }
+  }
 
   // Step 2: VWORLD
   stepOn('s2');

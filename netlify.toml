@@ -12,6 +12,11 @@
   status = 200
 
 [[redirects]]
+  from = "/proxy/geocode"
+  to = "/.netlify/functions/geocode"
+  status = 200
+
+[[redirects]]
   from = "/proxy/landbook"
   to = "/.netlify/functions/landbook"
   status = 200

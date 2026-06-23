@@ -23,6 +23,7 @@ exports.handler = async (event) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
+		console.log('Gemini raw response:', data);
         try {
           const json = JSON.parse(data);
           const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';

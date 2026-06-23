@@ -538,6 +538,9 @@ function genFallback(addr) {
 
 // ── 렌더 ──
 function renderResult(addr, d) {
+  if (d.safety?.disasters) {
+    d.safety.disasters = d.safety.disasters.filter(dis => dis.date && dis.title);
+  }
   const RM = {
     danger:{label:'위험 — 기획부동산 의심',icon:'🚨',cls:'danger',desc:'이 토지에서 기획부동산 사기의 전형적 패턴이 다수 발견되었습니다. 계약서에 서명하지 마시고, 이미 계약금을 냈다면 즉시 취소를 요청하세요.',tags:['개발 불가','맹지 의심','기획부동산 의심']},
     caution:{label:'주의 — 확인 후 결정',icon:'⚠️',cls:'caution',desc:'일부 위험 요소가 발견되었습니다. 계약 전에 시청 담당 부서에 직접 확인하거나 전문가 상담을 받은 후 결정하세요.',tags:['조건부 개발','허가 필요','추가 확인']},

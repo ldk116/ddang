@@ -326,7 +326,6 @@ function toggleApiPanel() {
 }
 
 function updateApiStatus() {
-  // 하드코딩 모드 — 패널 없음
 }
 
 // ── 스텝 헬퍼 ──
@@ -503,7 +502,7 @@ async function run() {
   stepOn('s1');
   const juso = await fetchJuso(addr);
   if (juso) {
-    apiData = { ...apiData, ...juso };
+    apiData = null;
     stepOk('s1', '✓ 행안부 주소 API → 지번주소 추출 완료');
   } else {
     stepSkip('s1', '↷ 주소 API 응답 없음 → AI 추론으로 전환');

@@ -459,7 +459,10 @@ async function run() {
     apiData = { ...apiData, ...juso };
     stepOk('s1', '✓ 행안부 주소 API → 지번주소 추출 완료');
   } else {
-    stepSkip('s1', '↷ 주소 API 응답 없음 → AI 추론으로 전환');
+    $('loading').style.display = 'none';
+    $('go').disabled = false;
+    alert('주소를 찾을 수 없습니다. 정확한 주소를 입력해주세요.\n예) 경기도 화성시 봉담읍 상리 산 47-3번지');
+    return;
   }
   await sleep(400);
 

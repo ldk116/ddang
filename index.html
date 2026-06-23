@@ -326,6 +326,7 @@ function toggleApiPanel() {
 }
 
 function updateApiStatus() {
+  // 하드코딩 모드 — 패널 없음
 }
 
 // ── 스텝 헬퍼 ──
@@ -388,13 +389,11 @@ async function fetchGeocode(jibunAddr) {
   } catch(e) { return null; }
 }
 
-async function fetchVworld(x, y) {
+async function fetchVworld(jibunAddr) {
   const key = HARDCODED_VWORLD_KEY;
-  if (!key) return null;
+  if (!key || !jibunAddr) return null;
   try {
-    const url = useProxy
-      ? `${PROXY}/proxy/vworld?x=${x}&y=${y}&key=${key}`
-      : `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LP_PA_CBND_BUBUN&key=${key}&geometry=false&attribute=true&page=1&size=1&geomFilter=POINT(${x} ${y})&crs=EPSG:4326&format=json`;
+    const url = `${PROXY}/proxy/vworld?addr=${encodeURIComponent(jibunAddr)}&key=${key}`;
     const res = await fetch(url);
     const data = await res.json();
     const feature = data?.response?.result?.featureCollection?.features?.[0];
@@ -410,13 +409,17 @@ async function fetchLandbook(pnu) {
 
 // ── Claude API 호출 ──
 async function callClaude(prompt) {
-  const res = await fetch('/proxy/gemini', {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt })
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
   });
   const data = await res.json();
-  return data?.text || '';
+  return data?.content?.[0]?.text || '';
 }
 
 // ── Claude가 구조화 JSON 생성 ──
@@ -498,33 +501,22 @@ async function run() {
   stepOn('s1');
   const juso = await fetchJuso(addr);
   if (juso) {
-    apiData = null;
+    apiData = { ...apiData, ...juso };
     stepOk('s1', '✓ 행안부 주소 API → 지번주소 추출 완료');
   } else {
     stepSkip('s1', '↷ 주소 API 응답 없음 → AI 추론으로 전환');
   }
   await sleep(400);
 
-  // Step 1.5: 지번주소 → 좌표 변환
-  if (apiData?.jibunAddr) {
-    const geo = await fetchGeocode(apiData.jibunAddr);
-    if (geo) {
-      apiData = { ...apiData, ...geo };
-    }
-  }
-
-  // Step 2: VWORLD
+  // Step 2: VWORLD (지번주소로 직접 조회)
   stepOn('s2');
-  if (apiData?.x && apiData?.y) {
-    const vw = await fetchVworld(apiData.x, apiData.y);
-    if (vw) {
-      apiData = { ...apiData, ...vw };
-      stepOk('s2', '✓ VWORLD → 지목·용도지역 조회 완료');
-    } else {
-      stepSkip('s2', '↷ VWORLD 응답 없음 → AI 추론으로 전환');
-    }
+  const vwAddr = apiData?.jibunAddr || addr;
+  const vw = await fetchVworld(vwAddr);
+  if (vw) {
+    apiData = { ...apiData, ...vw };
+    stepOk('s2', '✓ VWORLD → 지목·용도지역 조회 완료');
   } else {
-    stepSkip('s2', '↷ 좌표 없음 → AI 추론 모드');
+    stepSkip('s2', '↷ VWORLD 응답 없음 → AI 추론으로 전환');
   }
   await sleep(600);
 

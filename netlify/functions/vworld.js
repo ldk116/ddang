@@ -1,37 +1,35 @@
 const https = require('https');
 
-function httpsGet(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
+exports.handler = async (event) => {
+  const { addr, key } = event.queryStringParameters || {};
+  if (!addr || !key) return { statusCode: 400, body: '파라미터 없음' };
+
+  const path = `/req/data?service=data&request=GetFeature&data=LP_PA_CBND_BUBUN`
+    + `&key=${key}`
+    + `&geometry=false&attribute=true&page=1&size=1`
+    + `&query=${encodeURIComponent(addr)}`
+    + `&format=json`;
+
+  return new Promise((resolve) => {
+    const req = https.request({
+      hostname: 'api.vworld.kr',
+      path,
+      method: 'GET',
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      timeout: 8000
+    }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch(e) { reject(new Error('JSON 파싱 실패: ' + data)); }
+        resolve({
+          statusCode: 200,
+          headers: { 'Content-Type': 'application/json' },
+          body: data
+        });
       });
-    }).on('error', reject);
+    });
+    req.on('error', e => resolve({ statusCode: 500, body: e.message }));
+    req.on('timeout', () => { req.destroy(); resolve({ statusCode: 500, body: 'timeout' }); });
+    req.end();
   });
-}
-
-exports.handler = async (event) => {
-  const { x, y, key } = event.queryStringParameters || {};
-  if (!x || !y || !key) return { statusCode: 400, body: '파라미터 없음' };
-
-  try {
-    const url = `https://api.vworld.kr/req/data`
-      + `?service=data&request=GetFeature&data=LP_PA_CBND_BUBUN`
-      + `&key=${key}`
-      + `&geometry=false&attribute=true&page=1&size=1`
-      + `&geomFilter=POINT(${x} ${y})`
-      + `&crs=EPSG:4326&format=json`;
-
-    const data = await httpsGet(url);
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    };
-  } catch (e) {
-    return { statusCode: 500, body: e.message };
-  }
 };

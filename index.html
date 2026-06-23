@@ -462,7 +462,9 @@ buildings 4~6개, fraudChecks 3~5개, facs 4~6개, riskScores 4개. 순수 JSON�
 async function run() {
   const addr = $('addr').value.trim();
   if (!addr) { alert('주소를 입력해주세요.'); return; }
-
+  
+  let apiData = null;
+  
   $('go').disabled = true;
   $('loading').style.display = 'block';
   $('result').style.display = 'none';

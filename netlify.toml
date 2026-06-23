@@ -1,39 +1,27 @@
-[
-build
-]
+[build]
   functions = "netlify/functions"
 
-[[
-redirects
-]]
+[[redirects]]
   from = "/proxy/juso"
   to = "/.netlify/functions/juso"
   status = 200
 
-[[
-redirects
-]]
+[[redirects]]
   from = "/proxy/vworld"
   to = "/.netlify/functions/vworld"
   status = 200
 
-[[
-redirects
-]]
+[[redirects]]
   from = "/proxy/geocode"
   to = "/.netlify/functions/geocode"
   status = 200
 
-[[
-redirects
-]]
+[[redirects]]
   from = "/proxy/gemini"
   to = "/.netlify/functions/gemini"
   status = 200
 
-[[
-redirects
-]]
+[[redirects]]
   from = "/proxy/landbook"
   to = "/.netlify/functions/landbook"
   status = 200

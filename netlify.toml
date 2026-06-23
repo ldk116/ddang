@@ -1,0 +1,17 @@
+[build]
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/proxy/juso"
+  to = "/.netlify/functions/juso"
+  status = 200
+
+[[redirects]]
+  from = "/proxy/vworld"
+  to = "/.netlify/functions/vworld"
+  status = 200
+
+[[redirects]]
+  from = "/proxy/landbook"
+  to = "/.netlify/functions/landbook"
+  status = 200

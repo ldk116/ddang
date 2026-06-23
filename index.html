@@ -326,19 +326,7 @@ function toggleApiPanel() {
 }
 
 function updateApiStatus() {
-  const juso = $('key-juso').value.trim();
-  const vw = $('key-vworld').value.trim();
-  const s = $('api-status');
-  const b = $('api-mode-badge');
-  const allOn = juso && vw && useProxy;
-  s.innerHTML = `
-    <span class="api-badge ${useProxy?'on':'off'}">프록시 서버: ${useProxy?'연결됨':'미연결 (node server.js 실행 필요)'}</span>
-    <span class="api-badge ${juso?'on':'off'}">행안부 주소 API: ${juso?'설정됨':'미설정'}</span>
-    <span class="api-badge ${vw?'on':'off'}">VWORLD API: ${vw?'설정됨':'미설정'}</span>
-    <span class="api-badge ${allOn?'on':'ai'}">${allOn?'✅ 공공 API 모드':'→ AI 추론 모드로 동작'}</span>
-  `;
-  b.className = `api-badge ${allOn?'on':'ai'}`;
-  b.textContent = allOn ? '공공 API 모드' : 'AI 추론 모드';
+  // 하드코딩 모드 — 패널 없음
 }
 
 // ── 스텝 헬퍼 ──

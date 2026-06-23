@@ -39,6 +39,7 @@ exports.handler = async (event) => {
     }, (res) => {
       console.log('응답 status:', res.statusCode);
       let data = '';
+      res.setEncoding('utf8');
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         console.log('응답 data:', data.substring(0, 200));
